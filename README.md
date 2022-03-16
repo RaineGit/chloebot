@@ -13,4 +13,4 @@ The bot's settings are in the `config.js` file.
 
 To add commands you just have to edit `commands.js`, you can use the already existing commands as an example.
 ## Help
-If you need help [https://twitter.com/cypress128](message me on twitter)
+If you need help [message me on twitter](https://twitter.com/cypress128)
