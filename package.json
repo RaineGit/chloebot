@@ -1,0 +1,21 @@
+{
+  "name": "chloebot-rewrite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "fuse.js": "^6.5.3",
+    "g-i-s": "^2.1.6",
+    "googlethis": "^1.2.7",
+    "jimp": "^0.16.1",
+    "knowledge-graph-js": "^1.4.0",
+    "node-fetch": "2.6.7"
+  }
+}
