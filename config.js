@@ -5,6 +5,7 @@
 	"commandCategories": [
 		"informational",
 		"moderation",
+		"family",
 		"misc"
 	],
 	"defaultEmbedColor": "#e6cb67", // Yellow

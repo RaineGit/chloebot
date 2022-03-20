@@ -11,11 +11,13 @@ const knowledge = require('knowledge-graph-js');
 var gis = require('g-i-s');
 const googlethis = require('googlethis');
 const fetch = require("node-fetch");
+const translate = require("@vitalets/google-translate-api");
 
 var commands = [];
 var prevFiles = {};
 var prevImages = {};
 var db = {};
+var prompts = {};
 const SyntaxError = "Syntax error";
 const Error = "error";
 
@@ -122,7 +124,13 @@ client.on("guildCreate", guild => {
 });
 
 client.on("messageCreate", async msg => {
-	await processMessage(msg);
+	if(prompts[msg.channel.id + "_" + msg.author.id] !== undefined){
+		prompts[msg.channel.id + "_" + msg.author.id].callback(msg.content);
+		delete prompts[msg.channel.id + "_" + msg.author.id];
+	}
+	else{
+		await processMessage(msg);
+	}
 	onMessage(msg);
 });
 

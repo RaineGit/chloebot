@@ -120,6 +120,10 @@ function getAvatar(user, size = 1024, format = "webp"){
 	return user.displayAvatarURL({size: size, format: format, dynamic: true});
 }
 
+function getGuildIcon(guild, size = 1024, format = "webp"){
+	return guild.iconURL({size: size, format: format, dynamic: true});
+}
+
 function getBanner(user, size = 2048, format = "png"){
 	try{
 		return user.bannerURL({size: size, format: format, dynamic: true});
@@ -450,11 +454,10 @@ function banMember(member, bannedBy, reason){
 }
 
 // https://stackoverflow.com/a/3177838
-function timeInterval(ms) {
+function timeInterval(ms, max = -1) {
 	var seconds = Math.floor(Math.abs(ms) / 1000);
 	var times = [
 		[31536000, "year"],
-		[2592000, "month"],
 		[86400, "day"],
 		[3600, "hour"],
 		[60, "minute"],
@@ -468,6 +471,8 @@ function timeInterval(ms) {
 			text.push(time + " " + times[i][1] + (time == 1 ? "" : "s"));
 		}
 		seconds -= time * times[i][0];
+		if(i + 1 == max)
+			break;
 	}
 	return text.length == 0 ? "0 seconds" : text.join(" ");
 }
@@ -481,4 +486,8 @@ function guildCheck(id){
 			dbSet(["guilds", id, "config", i], setting.default);
 		}
 	}
+}
+
+function prompt(channel, user, cb){
+	prompts[channel.id + "_" + user.id] = {callback: cb};
 }
