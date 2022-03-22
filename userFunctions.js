@@ -1,12 +1,6 @@
 // This function will be run after the bot logs into Discord
 function onReady(){
-	/*
-	var updatePresence = function(){
-		client.user.setPresence({activities: [{name: config.prefix + "help", type: "LISTENING"}], status: "idle"});
-	};
-	updatePresence();
-	setInterval(updatePresence, 10 * 60 * 1000);
-	*/
+	setPresence({activities: [{name: config.prefix + "help", type: "LISTENING"}], status: "idle"});
 }
 
 // This function will be run when a message is sent

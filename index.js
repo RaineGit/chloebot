@@ -16,6 +16,8 @@ const translate = require("@vitalets/google-translate-api");
 var commands = [];
 var prevFiles = {};
 var prevImages = {};
+var deletedMsgs = {};
+var presence = null;
 var db = {};
 var prompts = {};
 const SyntaxError = "Syntax error";
@@ -115,6 +117,14 @@ client.on("ready", () => {
 		}
 	}
 	console.log("Done");
+	setInterval(async function(){
+		try{
+			await client.user.setPresence(presence || {activities: [], status: "online"});
+		}
+		catch(err){
+			console.log("The presence is invalid");
+		}
+	}, 10 * 60 * 1000);
 	console.log("Ready");
 	onReady();
 });
@@ -134,6 +144,23 @@ client.on("messageCreate", async msg => {
 	onMessage(msg);
 });
 
+client.on("messageDelete", msg => {
+	if(deletedMsgs[msg.channel.id] === undefined){
+		deletedMsgs[msg.channel.id] = [];
+	}
+	deletedMsgs[msg.channel.id].push({
+		time: new Date().getTime(),
+		postTime: msg.createdTimestamp,
+		author: {tag: msg.author.tag, id: msg.author.id, avatar: getAvatar(msg.author, 64)},
+		content: msg.content,
+		attachments: [...msg.attachments.values()].map(v => v.attachment),
+		embed: msg.embeds.length > 0
+	});
+	if(deletedMsgs[msg.channel.id].length > 3){
+		deletedMsgs[msg.channel.id].splice(0, 1);
+	}
+});
+
 function processMessage(msg){
 	return new Promise(async resolve => {
 		var prefix = getServerSetting(msg.guild, "Prefix") || config.prefix;
@@ -146,7 +173,7 @@ function processMessage(msg){
 			}
 			prevFiles[msg.channel.id].push(...(files).map(v => ({msg: msg, url: v})));
 			if(prevFiles[msg.channel.id].length > 10){
-				prevFiles[msg.channel.id] = prevFiles[msg.channel.id].slice(prevFiles[msg.channel.id].length - 10);
+				prevFiles[msg.channel.id].splice(0, 1);
 			}
 		}
 		if(images !== null){
@@ -155,7 +182,7 @@ function processMessage(msg){
 			}
 			prevImages[msg.channel.id].push(...(images).map(v => ({msg: msg, url: v})));
 			if(prevImages[msg.channel.id].length > 10){
-				prevImages[msg.channel.id] = prevImages[msg.channel.id].slice(prevImages[msg.channel.id].length - 10);
+				prevImages[msg.channel.id].splice(0, 1);
 			}
 		}
 		if(!(!msg.author.bot && msg.content.slice(0, prefix.length).toLowerCase() == prefix)){

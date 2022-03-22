@@ -471,7 +471,7 @@ function timeInterval(ms, max = -1) {
 			text.push(time + " " + times[i][1] + (time == 1 ? "" : "s"));
 		}
 		seconds -= time * times[i][0];
-		if(i + 1 == max)
+		if(text.length == max)
 			break;
 	}
 	return text.length == 0 ? "0 seconds" : text.join(" ");
@@ -490,4 +490,11 @@ function guildCheck(id){
 
 function prompt(channel, user, cb){
 	prompts[channel.id + "_" + user.id] = {callback: cb};
+}
+
+function setPresence(p){
+	presence = p;
+	return new Promise(async resolve => {
+		resolve(await client.user.setPresence(presence || {activities: [], status: "online"}));
+	});
 }

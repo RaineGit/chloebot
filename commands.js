@@ -456,6 +456,33 @@
 		}
 	},
 	{
+		name: ["del", "getdel", "snipe"],
+		cat: "informational",
+		desc: "See the latest deleted messages",
+		func: function(d){
+			var embeds = [];
+			var msgs = deletedMsgs[d.msg.channel.id] || [];
+			if(msgs.length == 0)
+				return new Answer("No messages have been deleted in the last " + timeInterval(new Date().getTime() - client.readyTimestamp));
+			for(var i=0; i<msgs.length; i++){
+				var msg = msgs[i];
+				var embed = new Discord.MessageEmbed();
+				embed.setColor(config.defaultEmbedColor);
+				embed.setAuthor({name: msg.author.tag, iconURL: msg.author.avatar});
+				embed.setDescription("Posted " + timeInterval((new Date().getTime()) - msg.postTime, 3) + " ago\nDeleted " + timeInterval((new Date().getTime()) - msg.time, 3) + " ago");
+				if(msg.content.length > 0)
+					embed.addField("Content", msg.content);
+				if(msg.attachments.length > 0)
+					embed.addField("Attachments", msg.attachments.join("\n"));
+				if(msg.embed)
+					embed.addField("Has embed?", "Yes");
+				embed.setFooter({text: "User ID: " + msg.author.id});
+				embeds.push(embed);
+			}
+			return new Answer({content: "Last " + msgs.length + " deleted messages in this channel", embeds: embeds});
+		}
+	},
+	{
 		name: ["pfp", "avatar"],
 		args: "<mention>",
 		cat: "informational",
@@ -1105,6 +1132,14 @@
 			return new Promise(async resolve => {
 				resolve(await getCommandByName("accept").func(d));
 			});
+		}
+	},
+	{
+		name: ["math", "calc"],
+		nohelp: true,
+		desc: "Do maths",
+		func: function(d){
+			return new Answer("Use `" + d.prefix + "ask` instead");
 		}
 	}
 ]
