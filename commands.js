@@ -311,19 +311,35 @@
 		cat: "informational",
 		desc: "Translate text",
 		func: function(d){
-			if(d.msgText.length == 0){
-				return SyntaxError;
-			}
-			d.msg.channel.sendTyping();
 			return new Promise(async resolve => {
+				var text = null;
+				if(d.msgText.length > 0)
+					text = d.msgText;
+				else if(d.msg.type == "REPLY"){
+					try{
+						text = (await d.msg.channel.messages.fetch(d.msg.reference.messageId)).content;
+					}
+					catch(err){}
+				}
+				if(text === null){
+					var lastMsg = d.msg.channel.messages.cache.at(-2);
+					if(lastMsg !== undefined){
+						text = lastMsg.content;
+					}
+				}
+				if(text === null || text === ""){
+					resolve(SyntaxError);
+					return;
+				}
+				d.msg.channel.sendTyping();
 				var targetLang = d.targetLang || 'en';
 				var t = null;
 				try{
-					t = await translate(d.msgText, {from: d.sourceLang, to: targetLang});
+					t = await translate(text, {from: d.sourceLang, to: targetLang});
 				}
 				catch(err){
 					if(err.code == 400)
-						resolve(new Answer(targetLang.toUpperCase() + " may not be a valid language", Error));
+						resolve(new Answer(d.sourceLang.toUpperCase() + " or " + targetLang.toUpperCase() + " may not be a valid language", Error));
 					else
 						resolve(new Answer("An unknown error has happened", Error));
 					return;
@@ -354,7 +370,7 @@
 				var embed = new Discord.MessageEmbed();
 				embed.setColor(config.defaultEmbedColor);
 				embed.setTitle("Translated from " + t.from.language.iso.toUpperCase() + " to " + targetLang.toUpperCase());
-				embed.addField(t.from.language.iso.toUpperCase(), t.from.text.autoCorrected ? t.from.text.value : d.msgText);
+				embed.addField(t.from.language.iso.toUpperCase(), t.from.text.autoCorrected ? t.from.text.value : text);
 				embed.addField(targetLang.toUpperCase(), t.text);
 				resolve(new Answer({embeds: [embed], components: [row]},
 					{components: {owner: d.msg.author, time: 60_000}}));
