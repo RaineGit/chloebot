@@ -1,7 +1,7 @@
 # ChloeBot (v3)
 This is a Discord bot.
 
-Try it here: [https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=274948554439&scope=bot](https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=274948554439&scope=bot)
+Try it here: [https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=415071853632&scope=bot](https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=415071853632&scope=bot)
 ## How to run
 1. Install node.js (v17.6.0 is recommended)
 2. Clone or download this repository

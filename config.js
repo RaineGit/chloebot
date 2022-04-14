@@ -1,7 +1,7 @@
 ({
 	"owner": "426459856975691776",
 	"prefix": "cd?",
-	"invite": "https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=274948554439&scope=bot",
+	"invite": "https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=415071853632&scope=bot",
 	"commandCategories": [
 		"informational",
 		"moderation",
