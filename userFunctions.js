@@ -18,7 +18,7 @@ async function onMessage(msg){
 						if(!user)
 							continue;
 						if(note.includes("{")){
-							note = note.replace(/{.+}/g, v => {
+							note = note.replace(/{.+?}/g, v => {
 								switch(v.slice(1, -1).toLowerCase()){
 									case "user_name":
 									case "username":
@@ -40,7 +40,7 @@ async function onMessage(msg){
 									default:
 										return v;
 								}
-							})
+							});
 						}
 						await (new Answer(user.username + "'s note is\n> " + note)).send(msg.channel);
 					}
