@@ -1,5 +1,4 @@
 # ChloeBot (v3)
-A Discord bot.
 
 Try it here: [https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=415071853632&scope=bot](https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=415071853632&scope=bot)
 ## How to run
