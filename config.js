@@ -2,6 +2,12 @@
 	"owner": "426459856975691776",
 	"prefix": "cd?",
 	"invite": "https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=415071853632&scope=bot",
+	"modules": [
+		"database",
+		"main",
+		"moderation",
+		"notes"
+	],
 	"commandCategories": [
 		"informational",
 		"moderation",

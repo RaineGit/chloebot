@@ -21,9 +21,8 @@ var Answer = class {
 		this.channel = channel;
 		return new Promise(async (resolve, reject) => {
 			try{
-				if(this.type == "error"){
+				if(this.type == "error")
 					resolve(await this.channel.send({embeds: [makeErrorEmbed(this.content)]}));
-				}
 				else{
 					var content = this.content;
 					this.buttonCallbacks = {};
@@ -99,6 +98,60 @@ var Answer = class {
 							}
 						});
 						collector.on('end', this.disableComponents);
+					}
+					resolve(msg);
+				}
+			}
+			catch(err){
+				reject(err);
+			}
+		});
+	}
+	webhookSend(channel, username, pfp){
+		this.channel = channel;
+		return new Promise(async (resolve, reject) => {
+			try{
+				if(this.type == "error")
+					resolve(await this.channel.send({embeds: [makeErrorEmbed(this.content)]}));
+				else{
+					var webhooks = mods.main.vars.webhooks
+					var webhook = undefined;
+					try {
+						if(!webhooks[channel.id])
+							webhooks[channel.id] = await getWebhook(channel);
+						webhook = webhooks[channel.id];
+					}
+					catch(err) {
+						await (new Answer("I am unable to create a webhook in this channel, please make sure that I have the **\"Manage Channels\"** and **\"Manage Webhooks\"** permissions", Error)).send(channel);
+						reject(err);
+						return;
+					}
+					var content = this.content;
+					content = cleanMessage(content.toString());
+					var msg = undefined;
+					try {
+						for(var t=0; t<2; t++){
+							try {
+								msg = await webhook.send({
+									content,
+									username,
+									avatarURL: pfp
+								});
+								break;
+							}
+							catch(err) {
+								if(t == 1){
+									reject(err);
+									return;
+								}
+								webhooks[channel.id] = await getWebhook(channel);
+								webhook = webhooks[channel.id];
+							}
+						}
+					}
+					catch(err) {
+						reject(err);
+						return;
 					}
 					resolve(msg);
 				}

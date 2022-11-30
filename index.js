@@ -16,117 +16,66 @@ const translate = require("@vitalets/google-translate-api");
 var commands = [];
 var prevFiles = {};
 var prevImages = {};
-var deletedMsgs = {};
-var presence = null;
-var db = {};
 var prompts = {};
+var mods = {};
+var modFunctions = {
+	beforeReady: [],
+	onReadyPrelude: [],
+	onReady: [],
+	onMessage: [],
+	onMessageDelete: []
+};
 const SyntaxError = "Syntax error";
 const Error = "error";
 
-if(!fs.existsSync("db")){
-	fs.mkdirSync("db");
-}
-
-console.log("Loading scripts");
 var config = eval(fs.readFileSync("config.js").toString());
 if(process.env.PREFIX !== undefined){
 	config.prefix = process.env.PREFIX;
 }
-eval(fs.readFileSync("classes.js").toString());
-eval(fs.readFileSync("functions.js").toString());
-eval(fs.readFileSync("userFunctions.js").toString());
-commands = eval(fs.readFileSync("commands.js").toString());
+console.log("Loading modules");
+for(var modName of config.modules){
+	console.log("... Loading " + modName);
+	var modPath = "./modules/" + modName + "/";
+	if(mods[modName] === undefined)
+		mods[modName] = {
+			vars: {}
+		};
+	if(fs.existsSync(modPath + "classes.js"))
+		eval(fs.readFileSync(modPath + "classes.js").toString());
+	if(fs.existsSync(modPath + "functions.js"))
+		eval(fs.readFileSync(modPath + "functions.js").toString());
+	if(fs.existsSync(modPath + "userFunctions.js")){
+		var functions = eval(fs.readFileSync(modPath + "userFunctions.js").toString());
+		for(var func in functions){
+			if(modFunctions[func] !== undefined)
+				modFunctions[func].push(functions[func]);
+		}
+	}
+	if(fs.existsSync(modPath + "commands.js"))
+		commands.push(...eval(fs.readFileSync(modPath + "commands.js").toString()));
+}
+
 var commandNameList = [];
 for(var i=0; i<commands.length; i++){
 	commandNameList.push(...(commands[i].name));
 }
 var fuzzyCommandSearch = new Fuse(commandNameList, {includeScore: true});
 
-if(fs.existsSync("db/database.json")){
-	console.log("Loading database");
-	db = JSON.parse(fs.readFileSync("db/database.json").toString());
+for(var func of modFunctions.beforeReady){
+	func();
 }
-if(fs.existsSync("db/lastchanges.txt")){
-	console.log("Applying last changes to the database");
-	var lastChanges = fs.readFileSync("db/lastchanges.txt").toString().split("\n");
-	if(lastChanges.length > 1){
-		for(var i=0; i<lastChanges.length - 1; i++){
-			var change = JSON.parse(lastChanges[i]);
-			dbSet(change[0], change[1], false);
-		}
-		fs.writeFileSync("db/database_tmp.json", JSON.stringify(db));
-		fs.renameSync("db/database_tmp.json", "db/database.json");
-	}
-	else{
-		console.log("Nevermind, there are no changes to apply...");
-	}
-	fs.unlinkSync("db/lastchanges.txt");
-}
-var saveStream = fs.createWriteStream("db/lastchanges.txt", {
-	'flags': 'a',
-	'encoding': null,
-	'mode': 0666
-});
 
 console.log("Logging into Discord");
 
 client.on("ready", () => {
 	console.log("Logged in as " + client.user.tag);
-	if(dbGet(["lastWpRemovalTime"]) === null){
-		dbSet(["lastWpRemovalTime"], Math.floor((new Date().getTime()) / 3600000) * 3600000);
+	for(var func of modFunctions.onReadyPrelude){
+		func();
 	}
-	var warnAutoRemove = function(){
-		var lastWpRemovalTime = dbGet(["lastWpRemovalTime"]);
-		var currHour = Math.floor((new Date().getTime()) / 3600000) * 3600000;
-		var hours = Math.round((currHour - lastWpRemovalTime) / 3600000);
-		if(hours <= 0)
-			return;
-		dbSet(["lastWpRemovalTime"], currHour);
-		var guilds = dbGet(["guilds"]);
-		if(guilds === null)
-			return;
-		console.log("Updating warnpoint amounts, do not stop this program's execution until this is done");
-		var amount = 0;
-		for(var i in guilds){
-			var guild = guilds[i];
-			var members = guild.members;
-			if(members === undefined || guild.config === undefined || guild.config.WarnAutoRemove === undefined)
-				continue;
-			var remove = Number(guild.config.WarnAutoRemove) * hours;
-			for(var j in members){
-				var member = guild.members[j];
-				var wp = member.wp;
-				if(wp === undefined)
-					continue;
-				setWarnpoints({user: {id: j}, guild: {id: i}}, Number(wp) - remove);
-				amount++;
-			}
-		}
-		console.log("Done, updated " + amount + " member" + (amount == 1 ? "" : "s"));
-	};
-	warnAutoRemove();
-	setInterval(warnAutoRemove, 60 * 1000);
-	console.log("Checking servers' configs");
-	var guilds = [...client.guilds.cache.keys()];
-	for(var i=0; i<guilds.length; i++){
-		guildCheck(guilds[i]);
-	}
-	for(var i in config.serverConfigs){
-		if(dbGet(["knownConfigs", i]) === null){
-			dbSet(["knownConfigs", i], 1);
-		}
-	}
-	console.log("Done");
-	setInterval(async function(){
-		try{
-			await client.user.setPresence(presence || {activities: [], status: "online"});
-		}
-		catch(err){
-			console.log("The presence is invalid");
-		}
-	}, 10 * 60 * 1000);
 	console.log("Ready");
-	onReady();
+	for(var func of modFunctions.onReady){
+		func();
+	}
 });
 
 client.on("guildCreate", guild => {
@@ -141,23 +90,14 @@ client.on("messageCreate", async msg => {
 	else{
 		await processMessage(msg);
 	}
-	onMessage(msg);
+	for(var func of modFunctions.onMessage){
+		func(msg);
+	}
 });
 
 client.on("messageDelete", msg => {
-	if(deletedMsgs[msg.channel.id] === undefined){
-		deletedMsgs[msg.channel.id] = [];
-	}
-	deletedMsgs[msg.channel.id].push({
-		time: new Date().getTime(),
-		postTime: msg.createdTimestamp,
-		author: {tag: msg.author.tag, id: msg.author.id, avatar: getAvatar(msg.author, 64)},
-		content: msg.content,
-		attachments: [...msg.attachments.values()].map(v => v.attachment),
-		embed: msg.embeds.length > 0
-	});
-	if(deletedMsgs[msg.channel.id].length > 3){
-		deletedMsgs[msg.channel.id].splice(0, 1);
+	for(var func of modFunctions.onMessageDelete){
+		func(msg);
 	}
 });
 
