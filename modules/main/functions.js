@@ -282,10 +282,9 @@ function prompt(channel, user, cb){
 }
 
 function setPresence(p){
-	var presence = mods.main.vars.presence;
-	presence = p;
+	mods.main.vars.presence = p;
 	return new Promise(async resolve => {
-		resolve(await client.user.setPresence(presence || {activities: [], status: "online"}));
+		resolve(await client.user.setPresence(mods.main.vars.presence || {activities: [], status: "online"}));
 	});
 }
 
