@@ -622,6 +622,9 @@
 					else if(type == "number"){
 						value = servConf[i] !== undefined ? servConf[i].toString() : "off";
 					}
+					else if(type == "boolean"){
+						value = servConf[i] !== undefined ? "on" : "off";
+					}
 					else if(type == "channel"){
 						value = servConf[i] !== undefined ? "<#" + servConf[i] + ">" : "off";
 					}
@@ -654,6 +657,14 @@
 							}
 							dbSet(["guilds", d.msg.guild.id, "config", reqConf], Number(value));
 							newValue = Number(value).toString();
+						}
+						else if(type == "boolean"){
+							if(value.toLowerCase() != "on"){
+								resolve(new Answer("The value must be either \"on\" or \"off\"", Error));
+								return;
+							}
+							dbSet(["guilds", d.msg.guild.id, "config", reqConf], true);
+							newValue = "on";
 						}
 						else if(type == "channel"){
 							var channel = await getChannel(value);

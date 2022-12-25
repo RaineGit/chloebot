@@ -1,12 +1,14 @@
 ({
 	"owner": "426459856975691776",
 	"prefix": "cd?",
+	"aiName": "chloe",
 	"invite": "https://discord.com/api/oauth2/authorize?client_id=446387824087007234&permissions=415071853632&scope=bot",
 	"modules": [
 		"database",
 		"main",
 		"moderation",
-		"notes"
+		"notes",
+		"chloeai3"
 	],
 	"commandCategories": [
 		"informational",
@@ -33,6 +35,14 @@
 			"onlyPositive": true,
 			"default": 0.01,
 			"desc": "Amount of warnpoints that must be removed from every member per hour"
+		},
+		"Ai": {
+			"type": "boolean",
+			"desc": "Whether ChloeAI is enabled"
+		},
+		"AiName": {
+			"type": "text",
+			"desc": "Name which ChloeAI must respond to. It should be a single word, no spaces"
 		}
 	},
 	"defaultThemeColors": {
