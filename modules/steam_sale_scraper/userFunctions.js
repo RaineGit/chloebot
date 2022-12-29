@@ -11,6 +11,6 @@
 	onReadyPrelude: function(){
 		if(mods.steam_sale_scraper.vars.html_ent === undefined)
 			return;
-		setInterval(scrapeSteamSales, 60 * 60 * 1000);
+		setInterval(scrapeSteamSales, 12 * 60 * 60 * 1000);
 	}
 })
