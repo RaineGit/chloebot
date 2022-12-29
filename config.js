@@ -8,7 +8,8 @@
 		"main",
 		"moderation",
 		"notes",
-		"chloeai3"
+		"chloeai3",
+		"steam_sale_scraper"
 	],
 	"commandCategories": [
 		"informational",
@@ -43,6 +44,10 @@
 		"AiName": {
 			"type": "text",
 			"desc": "Name which ChloeAI must respond to. It should be a single word, no spaces"
+		},
+		"SteamSalesChannel": {
+			"type": "channel",
+			"desc": "Channel where steam sales must be sent"
 		}
 	},
 	"defaultThemeColors": {

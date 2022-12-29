@@ -15,6 +15,7 @@
     "fuse.js": "^6.5.3",
     "g-i-s": "^2.1.6",
     "googlethis": "^1.2.7",
+    "html-entities": "^2.3.3",
     "jimp": "^0.16.1",
     "knowledge-graph-js": "^1.4.0",
     "node-fetch": "2.6.7"
