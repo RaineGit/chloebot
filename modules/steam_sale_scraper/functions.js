@@ -37,7 +37,7 @@ async function scrapeSteamSales() {
 				sales[i] = {name: info.data.name, desc: info.data.short_description, discount: price.data.price_overview.discount_percent, old_price: price.data.price_overview.initial_formatted, new_price: price.data.price_overview.final_formatted, header_image: info.data.header_image};
 			}
 			catch(err) {
-				console.log(err);
+				continue;
 			}
 			await asyncWait(1.6);
 		}
@@ -75,12 +75,12 @@ async function scrapeSteamSales() {
 						await (new Answer({embeds: [embed]})).send(channel);
 					}
 					catch(err) {
-						console.log(err);
+						continue;
 					}
 				}
 			}
 			catch(err) {
-				console.log(err);
+				continue;
 			}
 		}
 	}
